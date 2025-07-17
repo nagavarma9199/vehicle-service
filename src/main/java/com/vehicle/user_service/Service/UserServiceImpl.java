@@ -1,10 +1,11 @@
 package com.vehicle.user_service.Service;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,19 +32,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     // Spring Security loads user by username (email here)
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-       User user = userRepository.findByEmail(email);
-if (user == null) {
-    throw new UsernameNotFoundException("User not found with email: " + email);
-}
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                new ArrayList<>() // empty roles
-        );
+ @Override
+public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    com.vehicle.user_service.entity.User user = userRepository.findByEmail(email);
+    if (user == null) {
+        throw new UsernameNotFoundException("User not found with email: " + email);
     }
+
+    return new org.springframework.security.core.userdetails.User(
+            user.getEmail(),
+            user.getPassword(),
+            Collections.singletonList(new SimpleGrantedAuthority(user.getRole()))
+    );
+}
 
     @Override
     public List<User> getAllUsers() {
